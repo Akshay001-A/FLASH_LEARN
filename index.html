@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Set character encoding to UTF-8 for proper text rendering -->
+    <meta charset="UTF-8">
+    <!-- Ensure responsiveness on mobile devices -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <!-- Set the page title -->
+    <title>FlashLearn Pro - Master Your Flashcards</title>
+    <!-- Include jQuery for DOM manipulation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- styling -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <!-- CSS styles for the application -->
+    <style>
+        /* Reset default margins, padding, and box-sizing for consistency */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        /* Body styles with gradient background and Poppins font */
+        body {
+            background: linear-gradient(135deg, #6e48aa 0%, #9d50bb 100%);
+            font-family: 'Poppins', sans-serif;
+            min-height: 100vh;
+            padding: 20px;
+            color: #333;
+            transition: background 0.3s, color 0.3s;
+        }
+
+        /* Dark mode styles for the body */
+        body.dark-mode {
+            background: linear-gradient(135deg, #1f1c2c 0%, #2c2e43 100%);
+            color: #e0e0e0;
+        }
+
+        /* Dark mode styles for specific sections */
+        body.dark-mode .sidebar, body.dark-mode .quiz-area, body.dark-mode .leaderboard-section, 
+        body.dark-mode .user-setup, body.dark-mode .stat-card, body.dark-mode .quiz-card, 
+        body.dark-mode .leaderboard-item, body.dark-mode .flashcard-item {
+            background: #2c2e43;
+            border-color: #444;
+            color: #e0e0e0;
+        }
+
+        /* Container to center content with a max width */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        /* Header styles for the title and subtitle */
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            color: white;
+            position: relative;
+        }
+
+        .header h1 {
+            font-size:small;
+            font-weight: 700;
+            margin-bottom: 8px;
+            text-shadow: 2px 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            font-weight: 300;
+            opacity: 0.9;
+        }
+
+        /* Theme toggle button styles */
+        .theme-toggle {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: none;
+            border: none;
+            color: rgb(199, 32, 32);
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .theme-toggle:hover {
+            color: #ddd;
+        }
+
+        /* User setup section styles */
+        .user-setup {
+            background: rgb(239, 236, 236);
+            border-radius: 20px;
+            padding: 40px;
+            text-align: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            margin-bottom: 30px;
+            border: 1px solid #e0e0e0;
+        }
+
+        .user-setup i {
+            font-size: 3rem;
+            color: #6c2ed0;
+            margin-bottom: 20px;
+        }
+
+        /* Main content grid layout */
+        .main-content {
+            display: grid;
+            grid-template-columns: 1fr 2fr 1fr;
+            gap: 25px;
+        }
+
+        /* Sidebar and leaderboard section styles */
+        .sidebar, .leaderboard-section {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            border: 1px solid #e0e0e0;
+        }
+
+        .sidebar h3, .leaderboard-section h3 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 20px;
+            cursor: pointer;
+            user-select: none;
+            color: #6e48aa;
+        }
+
+        /* Dark mode styles for sidebar and leaderboard headers */
+        body.dark-mode .sidebar h3, body.dark-mode .leaderboard-section h3 {
+            color: #9d50bb;
+        }
+
+        /* Quiz area styles */
+        .quiz-area {
+            background: white;
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        /* Form group styles for input fields */
+        .form-group {
+            margin-bottom: 25px;
+            position: relative;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+            font-size: 1rem;
+        }
+
+        body.dark-mode .form-group label {
+            color: #e0e0e0;
+        }
+
+        .form-group input, .form-group textarea {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 1rem;
+            transition: border-color 0.3s, box-shadow 0.3s;
+            background: #fafafa;
+        }
+
+        body.dark-mode .form-group input, body.dark-mode .form-group textarea {
+            background: #333;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+
+        .form-group input:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #6e48aa;
+            box-shadow: 0 0 8px rgba(110, 72, 170, 0.2);
+        }
+
+        .form-group .char-counter {
+            position: absolute;
+            bottom: -20px;
+            right: 10px;
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        body.dark-mode .form-group .char-counter {
+            color: #aaa;
+        }
+
+        /* Button styles */
+        .btn {
+            background: #6e48aa;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 1rem;
+            font-weight: 600;
+            margin: 5px;
+            transition: background 0.3s, transform 0.1s;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.15);
+            position: relative;
+        }
+
+        .btn:hover {
+            background: #5a3a8c;
+        }
+
+        .btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(110, 72, 170, 0.3);
+        }
+
+        .btn:active {
+            transform: scale(0.98);
+        }
+
+        .btn-success { background: #2ecc71; }
+        .btn-success:hover { background: #27ae60; }
+
+        .btn-danger { background: #e74c3c; }
+        .btn-danger:hover { background: #c0392b; }
+
+        .btn-warning { background: #f1c40f; color: #333; }
+        .btn-warning:hover { background: #d4ac0d; }
+
+        body.dark-mode .btn-warning {
+            color: #333;
+        }
+
+        .btn-info { background: #3498db; }
+        .btn-info:hover { background: #2980b9; }
+
+        /* Tooltip styles for buttons */
+        .tooltip {
+            position: relative;
+        }
+
+        .tooltip::after {
+            content: attr(data-tooltip);
+            position: absolute;
+            bottom: 120%;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #333;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 0.8rem;
+            white-space: nowrap;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip:hover::after {
+            opacity: 1;
+        }
+
+        /* Stats grid layout */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 12px;
+            text-align: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        body.dark-mode .stat-card {
+            background: #333;
+            border-color: #555;
+        }
+
+        .stat-card i {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+
+        .stat-number {
+            font-size: 1.8rem;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        body.dark-mode .stat-label {
+            color: #aaa;
+        }
+
+        /* Quiz card styles */
+        .quiz-card {
+            background: #f8f9fa;
+            padding: 25px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+        }
+
+        body.dark-mode .quiz-card {
+            background: #333;
+            border-color: #555;
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: #333;
+            margin-bottom: 20px;
+        }
+
+        body.dark-mode .question-text {
+            color: #e0e0e0;
+        }
+
+        /* Answer input styles */
+        .answer-input {
+            width: 100%;
+            padding: 15px;
+            font-size: 1.1rem;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            background: #fafafa;
+        }
+
+        body.dark-mode .answer-input {
+            background: #333;
+            border-color: #555;
+            color: #e0e0e0;
+        }
+
+        .answer-input:focus {
+            outline: none;
+            border-color: #6e48aa;
+            box-shadow: 0 0 8px rgba(110, 72, 170, 0.2);
+        }
+
+        /* Feedback message styles */
+        .feedback-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin: 15px 0;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .feedback-message.correct {
+            background: #e7f7e9;
+            border: 1px solid #c3e6cb;
+            color: #155724;
+        }
+
+        body.dark-mode .feedback-message.correct {
+            background: #2e7d32;
+            border: 1px solid #4caf50;
+            color: #c8e6c9;
+        }
+
+        .feedback-message.wrong {
+            background: #fdeded;
+            border: 1px solid #f5c6cb;
+            color: #721c24;
+        }
+
+        body.dark-mode .feedback-message.wrong {
+            background: #c62828;
+            border: 1px solid #ef5350;
+            color: #ef9a9a;
+        }
+
+        .feedback-message.start-quiz {
+            background: #e6f0fa;
+            border: 1px solid #b3d4fc;
+            color: #1e4976;
+        }
+
+        body.dark-mode .feedback-message.start-quiz {
+            background: #1e4976;
+            border: 1px solid #64b5f6;
+            color: #bbdefb;
+        }
+
+        /* Leaderboard item styles */
+        .leaderboard-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            border: 1px solid #e0e0e0;
+        }
+
+        body.dark-mode .leaderboard-item {
+            background: #333;
+            border-color: #555;
+        }
+
+        .rank {
+            font-size: 1.5rem;
+            font-weight: 600;
+            width: 40px;
+            text-align: center;
+        }
+
+        .rank-1 { color: #FFD700; }
+        .rank-2 { color: #C0C0C0; }
+
+        .player-info {
+            flex-grow: 1;
+            text-align: left;
+        }
+
+        .player-name {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #333;
+        }
+
+        body.dark-mode .player-name {
+            color: #e0e0e0;
+        }
+
+        .player-score {
+            color: #666;
+            font-size: 0.9rem;
+        }
+
+        body.dark-mode .player-score {
+            color: #aaa;
+        }
+
+        .rank-up-indicator {
+            font-size: 1.2rem;
+            margin-left: 10px;
+        }
+
+        /* Flashcard list styles */
+        .flashcard-list {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+
+        .flashcard-item {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border: 1px solid #e0e0e0;
+        }
+
+        body.dark-mode .flashcard-item {
+            background: #333;
+            border-color: #555;
+        }
+
+        /* Delete and edit button styles */
+        .delete-btn, .edit-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            font-size: 14px;
+            margin-left: 8px;
+            transition: background 0.3s;
+        }
+
+        .delete-btn:hover {
+            background: #c0392b;
+        }
+
+        .edit-btn {
+            background: #f1c40f;
+            color: #333;
+        }
+
+        .edit-btn:hover {
+            background: #d4ac0d;
+        }
+
+        body.dark-mode .edit-btn {
+            color: #333;
+        }
+
+        /* Empty state styles */
+        .empty-state {
+            color: #666;
+            font-style: italic;
+            padding: 20px;
+            text-align: center;
+            font-size: 1rem;
+        }
+
+        body.dark-mode .empty-state {
+            color: #aaa;
+        }
+
+        /* Notification styles */
+        .notification {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 15px 40px 15px 20px;
+            border-radius: 8px;
+            color: white;
+            font-weight: 500;
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .notification.success { background: #2ecc71; }
+        .notification.error { background: #e74c3c; }
+
+        .notification .dismiss-btn {
+            background: transparent;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+
+        .notification .dismiss-btn:hover {
+            color: #ddd;
+        }
+
+        /* Highlight current player in the leaderboard */
+        .current-player {
+            background: #e6f0fa !important;
+            border: 2px solid #3498db !important;
+        }
+
+        body.dark-mode .current-player {
+            background: #1e4976 !important;
+            border: 2px solid #64b5f6 !important;
+        }
+
+        /* Progress bar styles */
+        .progress-bar {
+            height: 8px;
+            background: #ddd;
+            border-radius: 4px;
+            overflow: hidden;
+            margin-bottom: 20px;
+        }
+
+        body.dark-mode .progress-bar {
+            background: #555;
+        }
+
+        .progress {
+            height: 100%;
+            background: #6e48aa;
+            transition: width 0.3s ease;
+        }
+
+        /* Responsive styles for mobile devices */
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 15px;
+            }
+            .sidebar, .leaderboard-section {
+                padding: 20px;
+            }
+            .sidebar-content, .leaderboard-content {
+                display: none;
+            }
+            .sidebar-content.show, .leaderboard-content.show {
+                display: block;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 10px;
+            }
+            .quiz-area {
+                padding: 20px;
+            }
+            .header h1 {
+                font-size: 2rem;
+            }
+            .header p {
+                font-size: 1rem;
+            }
+            .btn {
+                padding: 10px 20px;
+                font-size: 0.9rem;
+            }
+            .question-text {
+                font-size: 1.2rem;
+            }
+            .answer-input {
+                font-size: 1rem;
+            }
+            .form-group input, .form-group textarea {
+                font-size: 0.9rem;
+            }
+        }
+
+        /* Inline style overrides for dark mode */
+        body.dark-mode .quiz-card h4 {
+            color: #9d50bb !important;
+        }
+
+        body.dark-mode #userSetup p {
+            color: #e0e0e0 !important;
+        }
+    </style>
+</head>
+<body>
+    <!-- Main container for the application -->
+    <div class="container">
+        <!-- Header section with title and theme toggle -->
+        <div class="header">
+            <h1><i class="fas fa-graduation-cap"></i> FlashLearn Pro</h1>
+            <p>Master Your Flashcards with Ease and Fun!</p>
+            <button class="theme-toggle" aria-label="Toggle dark mode"><i class="fas fa-moon"></i></button>
+        </div>
+
+        <!-- User Setup Section -->
+        <div id="userSetup" class="user-setup">
+            <i class="fas fa-book-reader"></i>
+            <h2>Welcome to FlashLearn!</h2>
+            <p style="margin: 20px 0; color: #333;">Enter your name to start learning and competing</p>
+            <div class="form-group">
+                <label for="playerName">Your Name:</label>
+                <input type="text" id="playerName" placeholder="Enter your name..." maxlength="50" aria-required="true">
+            </div>
+            <button class="btn btn-success tooltip" id="startBtn" data-tooltip="Start your learning journey"><i class="fas fa-rocket"></i> Start Learning</button>
+        </div>
+
+        <!-- Main Interface (hidden initially) -->
+        <div id="mainInterface" style="display: none;">
+            <div class="main-content">
+                <!-- Sidebar for creating flashcards -->
+                <div class="sidebar">
+                    <h3><i class="fas fa-plus-circle"></i> Create Flashcard</h3>
+                    <div class="sidebar-content">
+                        <div class="form-group">
+                            <label for="questionInput">Question:</label>
+                            <textarea id="questionInput" rows="3" placeholder="Enter your question..." maxlength="200" aria-required="true"></textarea>
+                            <span class="char-counter" id="questionCharCount">0/200</span>
+                        </div>
+                        <div class="form-group">
+                            <label for="answerInput">Answer:</label>
+                            <textarea id="answerInput" rows="3" placeholder="Enter the answer..." maxlength="200" aria-required="true"></textarea>
+                            <span class="char-counter" id="answerCharCount">0/200</span>
+                        </div>
+                        <button class="btn btn-success tooltip" id="addCardBtn" data-tooltip="Add a new flashcard"><i class="fas fa-plus"></i> Add Card</button>
+                        <button class="btn btn-warning tooltip" id="clearBtn" data-tooltip="Clear the form"><i class="fas fa-broom"></i> Clear</button>
+
+                        <h3 style="margin-top: 30px;"><i class="fas fa-list"></i> Your Cards</h3>
+                        <div id="cardsList" class="flashcard-list">
+                            <div class="empty-state">No cards yet. Create your first one!</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Quiz Area -->
+                <div class="quiz-area">
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <i class="fas fa-check-circle" style="color: #2ecc71;"></i>
+                            <div class="stat-number" style="color: #2ecc71;" id="correctStat">0</div>
+                            <div class="stat-label">Correct</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-times-circle" style="color: #e74c3c;"></i>
+                            <div class="stat-number" style="color: #e74c3c;" id="wrongStat">0</div>
+                            <div class="stat-label">Wrong</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-list-ol" style="color: #3498db;"></i>
+                            <div class="stat-number" style="color: #3498db;" id="totalStat">0</div>
+                            <div class="stat-label">Total</div>
+                        </div>
+                        <div class="stat-card">
+                            <i class="fas fa-fire" style="color: #f1c40f;"></i>
+                            <div class="stat-number" style="color: #f1c40f;" id="streakStat">0</div>
+                            <div class="stat-label">Streak</div>
+                        </div>
+                    </div>
+
+                    <div id="quizContent">
+                        <div class="empty-state">
+                            <h3><i class="fas fa-bullseye"></i> Ready to Quiz?</h3>
+                            <p>Add some flashcards to start learning!</p>
+                        </div>
+                    </div>
+
+                    <div id="quizControls" style="display: none;">
+                        <button class="btn btn-info tooltip" id="nextBtn" data-tooltip="Go to the next question"><i class="fas fa-forward"></i> Next Question</button>
+                        <button class="btn btn-warning tooltip" id="shuffleBtn" data-tooltip="Shuffle the flashcards"><i class="fas fa-random"></i> Shuffle</button>
+                        <button class="btn btn-danger tooltip" id="resetBtn" data-tooltip="Reset your score"><i class="fas fa-redo"></i> Reset Score</button>
+                    </div>
+                </div>
+
+                <!-- Leaderboard Section -->
+                <div class="leaderboard-section">
+                    <h3><i class="fas fa-trophy"></i> Leaderboard</h3>
+                    <div class="leaderboard-content">
+                        <div id="leaderboardList">
+                            <div class="empty-state">Complete some quizzes to see rankings!</div>
+                        </div>
+                        <button class="btn btn-danger tooltip" id="clearLeaderboardBtn" style="margin-top: 15px;" data-tooltip="Clear the leaderboard"><i class="fas fa-trash"></i> Clear Board</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- JavaScript for functionality -->
+    <script>
+        // Initialize flashcards with unique IDs (preloaded with sample questions)
+        let baseId = Date.now();
+        let flashcards = [
+            { question: "What HTML tag is used for the main heading?", answer: "h1", id: baseId + 1 },
+            { question: "Which CSS property sets text color?", answer: "color", id: baseId + 2 },
+            { question: "What JavaScript method adds an element to an array?", answer: "push", id: baseId + 3 },
+            { question: "What HTML attribute specifies a unique identifier?", answer: "id", id: baseId + 4 },
+            { question: "Which CSS property controls element spacing?", answer: "margin", id: baseId + 5 },
+            { question: "What JavaScript keyword declares a variable?", answer: "let", id: baseId + 6 },
+            { question: "What HTML tag creates a hyperlink?", answer: "a", id: baseId + 7 },
+            { question: "Which CSS property sets element size?", answer: "width", id: baseId + 8 },
+            { question: "What JavaScript method triggers an alert?", answer: "alert", id: baseId + 9 },
+            { question: "What HTML tag embeds an image?", answer: "img", id: baseId + 10 }
+        ];
+
+        // Global variables for tracking game state
+        let currentIndex = 0; // Tracks the current flashcard index in the quiz
+        let currentPlayer = ''; // Stores the current player's name
+        let gameStats = { correct: 0, wrong: 0, total: 0, streak: 0 }; // Tracks player's quiz stats
+        let leaderboard = []; // Stores leaderboard data (player stats)
+        let playerProgress = {}; // Tracks which questions each player has seen
+        let showingAnswer = false; // Flag to prevent multiple answer submissions
+        let notificationTimeout = null; // Manages notification timeouts
+        let previousRank = -1; // Tracks the player's previous rank for rank-up notifications
+
+        // Cache jQuery selectors for performance
+        const $quizContent = $('#quizContent'); // Quiz content area
+        const $quizControls = $('#quizControls'); // Quiz control buttons (Next, Shuffle, Reset)
+        const $cardsList = $('#cardsList'); // Flashcard list in the sidebar
+        const $leaderboardList = $('#leaderboardList'); // Leaderboard display area
+
+        // Character counters for textareas (limits input to 200 characters)
+        $('#questionInput').on('input', function() {
+            $('#questionCharCount').text($(this).val().length + '/200'); // Updates character count for question input
+        });
+
+        $('#answerInput').on('input', function() {
+            $('#answerCharCount').text($(this).val().length + '/200'); // Updates character count for answer input
+        });
+
+        // Manages refresh counter to clear leaderboard on the third refresh
+        function handleRefreshCounter() {
+            let refreshCount = parseInt(localStorage.getItem('refreshCount') || '0'); // Get current refresh count from localStorage
+            if (refreshCount === 2) { // On the third refresh (0 → 1 → 2)
+                localStorage.removeItem('leaderboard'); // Clear leaderboard data
+                localStorage.removeItem('topTwoPlayers'); // Clear top two players list
+                localStorage.removeItem('playerProgress'); // Clear player progress data
+                localStorage.setItem('refreshCount', '0'); // Reset refresh counter
+                leaderboard = []; // Clear in-memory leaderboard
+                playerProgress = {}; // Clear in-memory progress
+                console.log('Leaderboard cleared on third refresh');
+            } else {
+                refreshCount++; // Increment refresh counter
+                localStorage.setItem('refreshCount', refreshCount); // Save new count
+                console.log('Refresh count incremented to:', refreshCount);
+            }
+        }
+
+        // Loads leaderboard data from localStorage
+        function loadLeaderboard() {
+            try {
+                const saved = localStorage.getItem('leaderboard') || '[]'; // Get leaderboard data or default to empty array
+                leaderboard = JSON.parse(saved); // Parse JSON data
+                console.log('Leaderboard loaded:', leaderboard);
+            } catch (e) {
+                leaderboard = []; // Reset to empty array on error
+                console.error('Error loading leaderboard:', e);
+            }
+        }
+
+        // Saves leaderboard data to localStorage
+        function saveLeaderboard() {
+            localStorage.setItem('leaderboard', JSON.stringify(leaderboard)); // Stringify and save leaderboard
+            console.log('Leaderboard saved:', leaderboard);
+        }
+
+        // Loads the top two players' names from localStorage
+        function loadTopTwoPlayers() {
+            try {
+                const saved = localStorage.getItem('topTwoPlayers') || '[]'; // Get top two players or default to empty array
+                const topTwo = JSON.parse(saved); // Parse JSON data
+                console.log('Top two players loaded:', topTwo);
+                return topTwo;
+            } catch (e) {
+                console.error('Error loading top two players:', e);
+                return [];
+            }
+        }
+
+        // Saves the top two players' names to localStorage
+        function saveTopTwoPlayers() {
+            const topTwo = leaderboard.slice(0, 2).map(player => player.name); // Get names of top two players
+            localStorage.setItem('topTwoPlayers', JSON.stringify(topTwo)); // Save as JSON
+            console.log('Top two players saved:', topTwo);
+        }
+
+        // Checks if a player is in the top two
+        function isTopTwoPlayer(playerName) {
+            const topTwo = loadTopTwoPlayers(); // Load top two players
+            const isTopTwo = topTwo.includes(playerName); // Check if playerName is in top two
+            console.log(`Is ${playerName} in top two (${topTwo})?`, isTopTwo);
+            return isTopTwo;
+        }
+
+        // Loads player progress (seen questions) from localStorage
+        function loadPlayerProgress() {
+            try {
+                const saved = localStorage.getItem('playerProgress') || '{}'; // Get progress data or default to empty object
+                playerProgress = JSON.parse(saved); // Parse JSON data
+                console.log('Player progress loaded:', playerProgress);
+            } catch (e) {
+                playerProgress = {}; // Reset to empty object on error
+                console.error('Error loading player progress:', e);
+            }
+        }
+
+        // Saves player progress to localStorage
+        function savePlayerProgress() {
+            localStorage.setItem('playerProgress', JSON.stringify(playerProgress)); // Stringify and save progress
+            console.log('Player progress saved:', playerProgress);
+        }
+
+        // Gets an unseen question index for the current player to avoid repeats
+        function getUnseenQuestionIndex() {
+            if (!playerProgress[currentPlayer]) {
+                playerProgress[currentPlayer] = { seenQuestions: [] }; // Initialize progress for new player
+            }
+
+            const seenQuestions = playerProgress[currentPlayer].seenQuestions; // Get seen questions
+            const unseenIndices = flashcards
+                .map((_, index) => index)
+                .filter(index => !seenQuestions.includes(index)); // Find indices of unseen questions
+
+            if (unseenIndices.length === 0) {
+                // If all questions have been seen, reset the seen questions list
+                playerProgress[currentPlayer].seenQuestions = [];
+                savePlayerProgress();
+                return 0; // Start over from the first question
+            }
+
+            // Pick a random unseen question index
+            const newIndex = unseenIndices[Math.floor(Math.random() * unseenIndices.length)];
+            console.log(`Selected unseen question index for ${currentPlayer}:`, newIndex);
+            return newIndex;
+        }
+
+        // Toggles dark mode when the theme toggle button is clicked
+        $('.theme-toggle').click(function() {
+            $('body').toggleClass('dark-mode'); // Toggle dark mode class on body
+            const icon = $(this).find('i');
+            icon.toggleClass('fa-moon fa-sun'); // Switch between moon and sun icon
+            $(this).attr('aria-label', $('body').hasClass('dark-mode') ? 'Toggle light mode' : 'Toggle dark mode'); // Update accessibility label
+        });
+
+        // Toggles sidebar/leaderboard visibility on mobile devices
+        $('.sidebar h3, .leaderboard-section h3').click(function() {
+            if ($(window).width() <= 768) {
+                $(this).nextAll().toggleClass('show'); // Toggle visibility of content on mobile
+            }
+        });
+
+        // Starts the quiz when the user clicks "Start Learning"
+        $('#startBtn').click(function() {
+            const name = $('#playerName').val().trim(); // Get the player's name
+            if (!name) {
+                showNotification('Please enter your name!', 'error'); // Show error if name is empty
+                return;
+            }
+            currentPlayer = name; // Set the current player
+            console.log('Current player set to:', currentPlayer);
+
+            const topTwo = loadTopTwoPlayers(); // Load the top two players
+
+            // Check if the entered name is a third player
+            if (topTwo.length === 2 && !topTwo.includes(name)) {
+                // Clear the leaderboard if a third player tries to join
+                localStorage.removeItem('leaderboard');
+                localStorage.removeItem('topTwoPlayers');
+                localStorage.removeItem('playerProgress');
+                localStorage.setItem('refreshCount', '0');
+                leaderboard = [];
+                playerProgress = {};
+                showNotification('New player detected! Leaderboard cleared 🗑️', 'success');
+                console.log('Third player detected, leaderboard cleared');
+            }
+
+            // Load existing stats for the player if they exist
+            loadLeaderboard();
+            const existingPlayer = leaderboard.find(p => p.name === currentPlayer);
+            if (existingPlayer) {
+                gameStats = {
+                    correct: existingPlayer.correct,
+                    wrong: existingPlayer.total - existingPlayer.correct,
+                    total: existingPlayer.total,
+                    streak: 0 // Reset streak on new session
+                };
+                console.log(`Loaded stats for returning player ${currentPlayer}:`, gameStats);
+            } else {
+                gameStats = { correct: 0, wrong: 0, total: 0, streak: 0 }; // Initialize stats for new player
+                console.log(`Initialized stats for new player ${currentPlayer}:`, gameStats);
+            }
+
+            loadPlayerProgress(); // Load player progress to avoid repeating questions
+
+            $('#userSetup').hide(); // Hide the user setup screen
+            $('#mainInterface').show(); // Show the main interface
+            updateStats(); // Update the stats display
+            updateCardsList(); // Update the flashcard list
+            displayLeaderboard(); // Display the leaderboard immediately
+            showNotification(`Welcome ${name}! Start creating flashcards or try the quiz!`, 'success'); // Welcome message
+
+            // Start the quiz if flashcards exist
+            if (flashcards.length > 0) {
+                $quizContent.prepend(`
+                    <div class="feedback-message start-quiz">
+                        <i class="fas fa-rocket"></i>
+                        Quiz Started! Let's learn and compete!
+                    </div>
+                `);
+                startQuiz();
+            }
+            $('#questionInput').focus(); // Focus on the question input field
+        });
+
+        // Adds a new flashcard when the user clicks "Add Card"
+        $('#addCardBtn').click(function() {
+            const question = $('#questionInput').val().trim(); // Get the question
+            const answer = $('#answerInput').val().trim(); // Get the answer
+
+            if (!question || !answer) {
+                showNotification('Please fill in both question and answer!', 'error'); // Show error if fields are empty
+                return;
+            }
+            if (question.length > 200 || answer.length > 200) {
+                showNotification('Question and answer must be under 200 characters!', 'error'); // Show error if too long
+                return;
+            }
+
+            flashcards.push({ question, answer, id: Date.now() }); // Add the new flashcard
+            updateCardsList(); // Refresh the card list
+            $('#questionInput').val(''); // Clear the question input
+            $('#answerInput').val(''); // Clear the answer input
+            $('#questionCharCount').text('0/200'); // Reset character count
+            $('#answerCharCount').text('0/200'); // Reset character count
+            showNotification('Flashcard added!', 'success'); // Notify user
+
+            // Start the quiz if this is the first flashcard
+            if (flashcards.length === 1) {
+                startQuiz();
+                $quizContent.prepend(`
+                    <div class="feedback-message start-quiz">
+                        <i class="fas fa-rocket"></i>
+                        Quiz Started! Let's learn and compete!
+                    </div>
+                `);
+            }
+        });
+
+        // Clears the flashcard form when the user clicks "Clear"
+        $('#clearBtn').click(function() {
+            $('#questionInput').val(''); // Clear the question input
+            $('#answerInput').val(''); // Clear the answer input
+            $('#questionCharCount').text('0/200'); // Reset character count
+            $('#answerCharCount').text('0/200'); // Reset character count
+        });
+
+        // Updates the flashcard list in the sidebar (hides answers)
+        function updateCardsList() {
+            if (flashcards.length === 0) {
+                $cardsList.html('<div class="empty-state">No cards yet. Create your first one!</div>'); // Show empty state if no cards
+                return;
+            }
+
+            // Generate HTML for each flashcard with edit and delete buttons
+            const html = flashcards.map((card, index) => `
+                <div class="flashcard-item" role="listitem">
+                    <div>
+                        <strong>Q:</strong> ${card.question.substring(0, 40)}${card.question.length > 40 ? '...' : ''} <!-- Truncate long questions -->
+                    </div>
+                    <div>
+                        <button class="edit-btn tooltip" onclick="editCard(${index})" aria-label="Edit flashcard" data-tooltip="Edit this flashcard"><i class="fas fa-edit"></i></button>
+                        <button class="delete-btn tooltip" onclick="deleteCard(${index})" aria-label="Delete flashcard" data-tooltip="Delete this flashcard"><i class="fas fa-trash"></i></button>
+                    </div>
+                </div>
+            `).join('');
+            $cardsList.html(html); // Update the card list
+        }
+
+        // Edits an existing flashcard
+        function editCard(index) {
+            const card = flashcards[index]; // Get the flashcard to edit
+            $('#questionInput').val(card.question); // Populate question input
+            $('#answerInput').val(card.answer); // Populate answer input
+            $('#questionCharCount').text(card.question.length + '/200'); // Update character count
+            $('#answerCharCount').text(card.answer.length + '/200'); // Update character count
+            flashcards.splice(index, 1); // Remove the card from the list
+            updateCardsList(); // Refresh the card list
+            showNotification('Editing card. Update and click Add Card.', 'success'); // Notify user
+            $('#questionInput').focus(); // Focus on the question input
+        }
+
+        // Deletes a flashcard
+        function deleteCard(index) {
+            flashcards.splice(index, 1); // Remove the card at the given index
+            updateCardsList(); // Refresh the card list
+            if (currentIndex >= flashcards.length) {
+                currentIndex = 0; // Reset current index if it exceeds the new length
+            }
+            if (flashcards.length === 0) {
+                // If no cards remain, show the empty state
+                $quizContent.html(`
+                    <div class="empty-state">
+                        <h3><i class="fas fa-bullseye"></i> Ready to Quiz?</h3>
+                        <p>Add some flashcards to start learning!</p>
+                    </div>
+                `);
+                $quizControls.hide(); // Hide quiz controls
+            } else {
+                startQuiz(); // Restart the quiz with the updated card list
+            }
+            showNotification('Card deleted!', 'success'); // Notify user
+        }
+
+        // Starts the quiz by displaying a question
+        function startQuiz() {
+            if (flashcards.length === 0) return; // Exit if no flashcards exist
+
+            showingAnswer = false; // Reset answer display flag
+            currentIndex = getUnseenQuestionIndex(); // Get an unseen question index
+            const card = flashcards[currentIndex]; // Get the current flashcard
+
+            // Mark this question as seen
+            if (!playerProgress[currentPlayer]) {
+                playerProgress[currentPlayer] = { seenQuestions: [] };
+            }
+            if (!playerProgress[currentPlayer].seenQuestions.includes(currentIndex)) {
+                playerProgress[currentPlayer].seenQuestions.push(currentIndex); // Add to seen questions
+                savePlayerProgress(); // Save progress
+            }
+
+            // Display the question with a progress bar
+            $quizContent.html(`
+                <div class="progress-bar">
+                    <div class="progress" style="width: ${(playerProgress[currentPlayer].seenQuestions.length / flashcards.length) * 100}%"></div>
+                </div>
+                <div class="quiz-card">
+                    <h4 style="color: #6e48aa; margin-bottom: 15px; font-weight: 600;">Question ${playerProgress[currentPlayer].seenQuestions.length} of ${flashcards.length}</h4>
+                    <div class="question-text">${card.question}</div>
+                    <input type="text" class="answer-input" id="userAnswerInput" placeholder="Type your answer here..." aria-label="Your answer">
+                    <br>
+                    <button class="btn btn-info tooltip" id="submitAnswerBtn" data-tooltip="Submit your answer"><i class="fas fa-check"></i> Submit Answer</button>
+                    <div id="answerSection" style="display: none;"></div>
+                </div>
+            `);
+
+            $quizControls.show(); // Show quiz control buttons
+            $('#userAnswerInput').focus(); // Focus on the answer input field
+        }
+
+        // Submits an answer when the user clicks "Submit Answer"
+        $(document).on('click', '#submitAnswerBtn', function() {
+            if (showingAnswer) return; // Prevent multiple submissions
+
+            const userAnswer = $('#userAnswerInput').val().trim(); // Get the user's answer
+            if (!userAnswer) {
+                showNotification('Please enter an answer!', 'error'); // Show error if answer is empty
+                return;
+            }
+
+            showingAnswer = true; // Set flag to prevent further submissions
+            const correctAnswer = flashcards[currentIndex].answer; // Get the correct answer
+            const isCorrect = userAnswer.toLowerCase() === correctAnswer.toLowerCase(); // Check if answer is correct
+
+            if (isCorrect) {
+                gameStats.correct++; // Increment correct answers
+                gameStats.total++; // Increment total answers
+                gameStats.streak++; // Increment streak
+                showNotification(`Great job! 🎉 Streak: ${gameStats.streak}`, 'success'); // Notify user
+                $('#answerSection').html(`
+                    <div class="feedback-message correct">
+                        <i class="fas fa-check-circle"></i>
+                        Correct! The answer is: ${correctAnswer}
+                    </div>
+                `).show(); // Show correct feedback
+            } else {
+                gameStats.wrong++; // Increment wrong answers
+                gameStats.total++; // Increment total answers
+                gameStats.streak = 0; // Reset streak
+                showNotification('Keep practicing! 💪 Streak reset.', 'error'); // Notify user
+                $('#answerSection').html(`
+                    <div class="feedback-message wrong">
+                        <i class="fas fa-times-circle"></i>
+                        Wrong! The correct answer is: ${correctAnswer}
+                    </div>
+                `).show(); // Show wrong feedback
+            }
+
+            $('#submitAnswerBtn').prop('disabled', true); // Disable the submit button
+            $('#userAnswerInput').prop('disabled', true); // Disable the answer input
+            updateStats(); // Update the stats display
+            updateLeaderboard(); // Update the leaderboard
+        });
+
+        // Moves to the next question in the quiz
+        function nextQuestion() {
+            startQuiz(); // Simply restart the quiz to load the next question
+        }
+
+        // Handles Enter key for submitting answers
+        $(document).on('keypress', '#userAnswerInput', function(e) {
+            if (e.which === 13) {
+                $('#submitAnswerBtn').click(); // Trigger submit on Enter key
+            }
+        });
+
+        // Handles Enter key for starting the quiz
+        $('#playerName').keypress(function(e) {
+            if (e.which === 13) {
+                $('#startBtn').click(); // Trigger start on Enter key
+            }
+        });
+
+        // Moves to the next question when the user clicks "Next Question"
+        $('#nextBtn').click(nextQuestion);
+
+        // Shuffles the flashcards when the user clicks "Shuffle"
+        $('#shuffleBtn').click(function() {
+            for (let i = flashcards.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [flashcards[i], flashcards[j]] = [flashcards[j], flashcards[i]]; // Shuffle the flashcards array
+            }
+            // Reset seen questions when shuffling
+            if (playerProgress[currentPlayer]) {
+                playerProgress[currentPlayer].seenQuestions = [];
+                savePlayerProgress();
+            }
+            startQuiz(); // Restart the quiz with shuffled cards
+            showNotification('Cards shuffled! 🔀', 'success'); // Notify user
+        });
+
+        // Resets the score when the user clicks "Reset Score"
+        $('#resetBtn').click(function() {
+            gameStats = { correct: 0, wrong: 0, total: 0, streak: 0 }; // Reset all stats
+            updateStats(); // Update the stats display
+            updateLeaderboard(); // Update the leaderboard
+            showNotification('Score reset! 🔄', 'success'); // Notify user
+        });
+
+        // Updates the stats display in the quiz area
+        function updateStats() {
+            $('#correctStat').text(gameStats.correct); // Update correct answers
+            $('#wrongStat').text(gameStats.wrong); // Update wrong answers
+            $('#totalStat').text(gameStats.total); // Update total answers
+            $('#streakStat').text(gameStats.streak); // Update streak
+            console.log('Stats updated:', gameStats);
+        }
+
+        // Updates the leaderboard with the current player's stats
+        function updateLeaderboard() {
+            // Calculate accuracy (0 if no answers yet)
+            const accuracy = gameStats.total > 0 ? Math.round((gameStats.correct / gameStats.total) * 100) : 0;
+            const existingIndex = leaderboard.findIndex(p => p.name === currentPlayer); // Find the player in the leaderboard
+            const playerData = {
+                name: currentPlayer,
+                correct: gameStats.correct,
+                total: gameStats.total,
+                accuracy: accuracy
+            };
+
+            if (existingIndex >= 0) {
+                leaderboard[existingIndex] = playerData; // Update existing player's stats
+                console.log(`Updated existing player ${currentPlayer} in leaderboard:`, playerData);
+            } else if (gameStats.total > 0) {
+                // Only add new players if they have answered at least one question
+                leaderboard.push(playerData);
+                console.log(`Added new player ${currentPlayer} to leaderboard:`, playerData);
+            }
+
+            // Sort by correct answers, then by total (fewer total answers is better if correct is tied)
+            leaderboard.sort((a, b) => {
+                if (b.correct !== a.correct) return b.correct - a.correct;
+                return a.total - b.total;
+            });
+
+            leaderboard = leaderboard.slice(0, 2); // Limit to top 2 players
+
+            saveTopTwoPlayers(); // Save the top two players
+
+            // Check for rank change to show rank-up notification
+            const currentRank = leaderboard.findIndex(p => p.name === currentPlayer);
+            if (previousRank === 1 && currentRank === 0) {
+                showNotification('Rank Up! 🏆 You are now in 1st place!', 'success');
+            }
+            previousRank = currentRank;
+
+            saveLeaderboard(); // Save the updated leaderboard
+            displayLeaderboard(); // Display the updated leaderboard
+        }
+
+        // Displays the leaderboard with medals and rank-up indicators
+        function displayLeaderboard() {
+            console.log('Displaying leaderboard:', leaderboard);
+            if (leaderboard.length === 0) {
+                $leaderboardList.html('<div class="empty-state">Complete some quizzes to see rankings!</div>'); // Show empty state if no rankings
+                return;
+            }
+
+            // Generate HTML for each player in the leaderboard
+            const html = leaderboard.map((player, index) => {
+                const medals = ['🥇', '🥈']; // Medals for top 2
+                const medal = medals[index] || (index + 1); // Assign medal or rank number
+                const isCurrentPlayer = player.name === currentPlayer; // Highlight current player
+                const playerClass = isCurrentPlayer ? 'current-player' : '';
+                const rankClass = index === 0 ? 'rank-1' : index === 1 ? 'rank-2' : '';
+
+                return `
+                    <div class="leaderboard-item ${playerClass}" role="listitem">
+                        <div class="rank ${rankClass}">${medal}</div>
+                        <div class="player-info">
+                            <div class="player-name">${player.name}${isCurrentPlayer ? ' (You)' : ''}${isCurrentPlayer && previousRank === 0 && index === 0 ? '<span class="rank-up-indicator">🏆</span>' : ''}</div>
+                            <div class="player-score">${player.correct}/${player.total} correct (${player.accuracy}%)</div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            $leaderboardList.html(html); // Update the leaderboard display
+        }
+
+        // Clears the leaderboard when the user clicks "Clear Board"
+        $('#clearLeaderboardBtn').click(function() {
+            leaderboard = []; // Clear in-memory leaderboard
+            playerProgress = {}; // Clear in-memory progress
+            localStorage.removeItem('leaderboard'); // Clear leaderboard from localStorage
+            localStorage.removeItem('topTwoPlayers'); // Clear top two players
+            localStorage.removeItem('playerProgress'); // Clear player progress
+            localStorage.setItem('refreshCount', '0'); // Reset refresh counter
+            displayLeaderboard(); // Update the leaderboard display
+            showNotification('Leaderboard cleared! 🗑️', 'success'); // Notify user
+            console.log('Leaderboard cleared manually');
+        });
+
+        // Shows a notification (success or error) with a dismiss button
+        function showNotification(message, type) {
+            if (notificationTimeout) {
+                clearTimeout(notificationTimeout); // Clear any existing notification timeout
+                $('.notification').remove(); // Remove any existing notification
+            }
+
+            // Create a new notification element
+            const notification = $(`
+                <div class="notification ${type}" role="alert" aria-live="assertive">
+                    <i class="fas ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}"></i>
+                    ${message}
+                    <button class="dismiss-btn" aria-label="Dismiss notification">×</button>
+                </div>
+            `);
+            $('body').append(notification); // Add the notification to the page
+
+            notificationTimeout = setTimeout(() => {
+                notification.remove(); // Auto-dismiss after 3 seconds
+            }, 3000);
+
+            notification.find('.dismiss-btn').click(() => {
+                notification.remove(); // Dismiss on click
+            });
+        }
+
+        // Initialize the application on page load
+        handleRefreshCounter(); // Manage refresh counter for leaderboard reset
+        loadLeaderboard(); // Load the leaderboard
+        loadPlayerProgress(); // Load player progress
+        updateStats(); // Update the stats display
+        updateCardsList(); // Update the flashcard list
+        displayLeaderboard(); // Display the leaderboard on page load
+    </script>
+</body>
+</html>
