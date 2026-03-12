@@ -86,13 +86,13 @@ Follow these steps to run the project locally.
 ### 1️⃣ Clone the repository
 
 ```id="clone01"
-git clone https://github.com/yourusername/Flashleran.git
+git clone https://github.com/Akshay001-A/FLASH_LEARN.git
 ```
 
 ### 2️⃣ Navigate to the project folder
 
 ```id="nav01"
-cd Flashleran
+cd FLASH_LEARN
 ```
 
 ### 3️⃣ Run the project
