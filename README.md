@@ -123,5 +123,5 @@ This project is licensed under the **MIT License**.
 
 # 👨‍💻 Authors
 
-**Akshay R**
-**Charan Kumar R**
+- Akshay R
+- Charan Kumar R
